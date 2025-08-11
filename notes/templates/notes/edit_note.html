@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Edit Note</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'notes/styles.css' %}">
+</head>
+<body class="edit-body">
+
+    <h1 class="edit-title">Edit Note</h1>
+    <form method="POST" class="edit-form">
+        {% csrf_token %}
+        <label for="heading" class="edit-label">Heading</label>
+        <input type="text" id="heading" name="heading" value="{{ note.heading }}" required class="edit-input">
+
+        <label for="description" class="edit-label">Description</label>
+        <textarea id="description" name="description" rows="5" required class="edit-textarea">{{ note.description }}</textarea>
+
+        <label for="priority" class="edit-label">Priority</label>
+        <select id="priority" name="priority" required class="edit-select">
+            <option value="L" {% if note.priority == 'L' %}selected{% endif %}>Low</option>
+            <option value="M" {% if note.priority == 'M' %}selected{% endif %}>Medium</option>
+            <option value="H" {% if note.priority == 'H' %}selected{% endif %}>High</option>
+        </select>
+
+        <!-- New Task Date input -->
+       <label for="task_date" class="edit-label">Task Date</label>
+<input
+  type="date"
+  id="task_date"
+  name="task_date"
+  value="{{ note.task_date|date:'Y-m-d' }}"
+  class="edit-input"
+/>
+
+        <button type="submit" class="edit-submit-btn">Save Changes</button>
+    </form>
+
+    <a href="{% url 'index' %}" class="back-link">← Back to Notes</a>
+
+</body>
+</html>

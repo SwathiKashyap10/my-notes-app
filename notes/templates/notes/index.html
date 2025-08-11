@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Notes App</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'notes/styles.css' %}">
+</head>
+<body class="index-body">
+
+    <header class="app-header">
+        <div class="logo-container">
+            <h1 class="app-logo">📝 My Notes App</h1>
+        </div>
+    </header>
+
+    <!-- Search Bar -->
+    <form method="GET" action="/" class="search-form">
+        <input type="text" name="q" placeholder="Search notes..." value="{{ query }}" class="search-input">
+        <button type="submit" class="search-button">Search</button>
+    </form>
+
+    <div class="app-container">
+      <div class="notes-section">
+
+    <!-- Notes List -->
+    <ul class="notes-list">
+        {% if notes %}
+            {% for note in notes %}
+                <li class="note-item {% if note.priority == 'L' %}low{% elif note.priority == 'M' %}medium{% else %}high{% endif %}">
+                    <div class="note-content">
+                        <h3 class="note-heading">{{ note.heading }}</h3>
+                        <p class="note-description">{{ note.description }}</p>
+                        <small class="note-meta">Priority: {{ note.get_priority_display }} | Created: {{ note.created_at|date:"M d, Y H:i" }}</small>
+                    </div>
+                    <div class="note-actions">
+                        <a href="{% url 'edit_note' note.id %}" class="note-edit">Edit</a>
+                        <a href="{% url 'delete_note' note.id %}" onclick="return confirm('Are you sure you want to delete this note?');" class="note-delete">Delete</a>
+                    </div>
+                </li>
+            {% endfor %}
+        {% else %}
+            <p class="no-notes-msg">No notes found.</p>
+        {% endif %}
+    </ul>
+
+    </div>
+
+    <div class="calendar-section">
+    <input type="date" id="calendarDate" value="{{ selected_date }}">
+    </div>
+    </div>
+
+    <!-- Add Note Button -->
+    <button id="addBtn" class="add-note-btn">+</button>
+
+    <!-- Modal for Add Note -->
+    <div id="modal" class="modal">
+        <div id="modal-content" class="modal-content">
+            <span id="modal-close" class="modal-close">&times;</span>
+            <h2 class="modal-title">Add Note</h2>
+            <form method="POST" action="{% url 'add_note' %}" class="modal-form">
+                {% csrf_token %}
+                <label for="heading" class="modal-label">Heading</label>
+                <input type="text" id="heading" name="heading" required class="modal-input">
+
+                <label for="description" class="modal-label">Description</label>
+                <textarea id="description" name="description" rows="4" required class="modal-textarea"></textarea>
+
+                <label for="priority" class="modal-label">Priority</label>
+                <select id="priority" name="priority" required class="modal-select">
+                    <option value="L">Low</option>
+                    <option value="M" selected>Medium</option>
+                    <option value="H">High</option>
+                </select>
+
+                <label for="task_date">Task Date</label>
+               <input type="date" id="task_date" name="task_date">
+
+
+
+                <button type="submit" class="modal-submit-btn">Add Note</button>
+            </form>
+        </div>
+    </div>
+
+<script>
+    // Modal handling
+    const addBtn = document.getElementById('addBtn');
+    const modal = document.getElementById('modal');
+    const modalClose = document.getElementById('modal-close');
+
+    addBtn.addEventListener('click', () => {
+        modal.classList.add('active');
+    });
+
+    modalClose.addEventListener('click', () => {
+        modal.classList.remove('active');
+    });
+
+    // Close modal if clicked outside modal content
+    window.addEventListener('click', e => {
+        if(e.target === modal) {
+            modal.classList.remove('active');
+        }
+    });
+
+  const calendarInput = document.getElementById('calendarDate');
+
+  calendarInput.addEventListener('change', () => {
+    const selectedDate = calendarInput.value;
+    const url = new URL(window.location.href);
+    if (selectedDate) {
+      url.searchParams.set('date', selectedDate);
+    } else {
+      url.searchParams.delete('date');
+    }
+    // Keep the existing search query if any
+    window.location.href = url.toString();
+  });
+
+</script>
+
+</body>
+</html>
